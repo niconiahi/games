@@ -1,0 +1,14 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.10"
+    "@std/http/unstable-route": "jsr:@std/http/unstable-route"
+  },
+  "compilerOptions": {
+    "lib": ["dom", "esnext"],
+    "strict": true,
+    "checkJs": true
+  }
+}
