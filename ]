@@ -30,7 +30,7 @@ assert(context, "game should have a 2d context");
 /**
  * @type {Array.<Coordinate>}
  */
-let snake = [[10, 10], [11, 10]];
+let body = [[10, 10], [11, 10]];
 let direction = "right";
 /**
  * @param {HTMLCanvasElement} canvas
@@ -61,9 +61,9 @@ function draw_board(context, x, y) {
  * @param {CanvasRenderingContext2D} context
  */
 function draw_snake(context) {
-  for (let x = 0; x < snake.length; x++) {
-    const position_x = (snake[x][0] * CELL_WIDTH) - 1 * CELL_WIDTH;
-    const position_y = (snake[x][1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+  for (let x = 0; x < body.length; x++) {
+    const position_x = (body[x][0] * CELL_WIDTH) - 1 * CELL_WIDTH;
+    const position_y = (body[x][1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
     context.fillStyle = "green";
     context.fillRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
   }
@@ -71,62 +71,30 @@ function draw_snake(context) {
 const button = document.querySelector("#advance");
 assert(button, "button should existj0");
 button.addEventListener("click", () => {
-  // for (let x = 0; x < body.length; x++) {
-  //   const position_x = (body[x][0] * CELL_WIDTH) - 1 * CELL_WIDTH;
-  //   const position_y = (body[x][1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
-  //   body.shift();
-  //   context.clearRect(position_x, position_y, canvas.width, canvas.height);
-  // }
+  for (let x = 0; x < body.length; x++) {
+    const position_x = (body[x][0] * CELL_WIDTH) - 1 * CELL_WIDTH;
+    const position_y = (body[x][1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+    body.shift();
+    context.clearRect(position_x, position_y, canvas.width, canvas.height);
+  }
   switch (direction) {
     case "right": {
-      const tail = getTail(snake);
-      let tail_x = tail[0];
-      console.log("tail_x", tail_x);
-      if (tail_x > COLUMN_COUNT) {
-        tail_x = 0;
+      // body = body.slice(1, body.length);
+      console.log("body", body);
+      const head = body[body.length - 1];
+      let x = head[0] + 1;
+      if (x > COLUMN_COUNT) {
+        x = 0;
       }
-      const tail_y = tail[1];
-      console.log("tail_y", tail_y);
-      const position_tail_x = (tail_x * CELL_WIDTH) - 1 * CELL_WIDTH;
-      const position_tail_y = (tail_y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
-      context.clearRect(
-        position_tail_x,
-        position_tail_y,
-        canvas.width,
-        canvas.height,
-      );
-      snake.shift();
-
-      const head = getHead(snake);
-      let head_x = head[0];
-      if (head_x >= COLUMN_COUNT) {
-        head_x = 0;
-      }
-      const head_y = head[1];
-      const position_head_x = (head_x * CELL_WIDTH) - 1 * CELL_WIDTH;
-      const position_head_y = (head_y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
-      context.fillStyle = "green";
-      context.fillRect(
-        position_head_x,
-        position_head_y,
-        CELL_WIDTH,
-        CELL_HEIGHT,
-      );
-      snake.push([head_x + 1, head_y]);
+      const y = head[1];
+      const position_x = (x * CELL_WIDTH) - 1 * CELL_WIDTH;
+      console.log("position_x", position_x);
+      const position_y = (y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+      console.log("position_y", position_y);
+      context.fillStyle = "white";
+      context.fillRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
+      body.shift();
+      // body.push([x, y]);
     }
   }
 });
-
-/**
- * @param {Array.<Coordinate>} snake
- */
-function getHead(snake) {
-  return snake[snake.length - 1];
-}
-
-/**
- * @param {Array.<Coordinate>} snake
- */
-function getTail(snake) {
-  return snake[0];
-}
