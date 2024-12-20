@@ -2,13 +2,16 @@
  * @typedef {[number, number]} Coordinate
  */
 /**
+ * @typedef {'right'|'left'|'up'|'down'} Direction
+ */
+/**
  * @type {Array.<Coordinate>}
  */
 const snake = [[10, 10], [11, 10]];
 /**
- * @typedef {'right'|'left'|'up'|'down'} Direction
+ * @type {Direction}
  */
-const direction = "right";
+const direction = "left";
 /**
  * @template T
  * @param {T|null|undefined} value The value to check
@@ -86,6 +89,36 @@ function move_snake() {
         CELL_HEIGHT,
       );
       snake.push([head_x + 1, head_y]);
+      break;
+    }
+    case "left": {
+      const [head_x, head_y] = getHead(snake);
+      const position_head_x = (head_x * CELL_WIDTH) - 1 * CELL_WIDTH;
+      const position_head_y = (head_y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+      context.clearRect(
+        position_head_x,
+        position_head_y,
+        canvas.width,
+        canvas.height,
+      );
+      snake.pop();
+
+      let [tail_x, tail_y] = getTail(snake);
+      if (tail_x < 0) {
+        tail_x = COLUMN_COUNT;
+      }
+      const position_tail_x = (tail_x * CELL_WIDTH) - 1 * CELL_WIDTH;
+      const position_tail_y = (tail_y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+      context.fillStyle = "green";
+      context.fillRect(
+        position_tail_x,
+        position_tail_y,
+        CELL_WIDTH,
+        CELL_HEIGHT,
+      );
+      snake.unshift([tail_x - 1, tail_y]);
+
+      break;
     }
   }
 }

@@ -7,7 +7,7 @@
     "@std/http/unstable-route": "jsr:@std/http/unstable-route"
   },
   "compilerOptions": {
-    "lib": ["dom", "esnext"],
+    "lib": ["dom", "esnext", "deno.ns"],
     "strict": true,
     "checkJs": true
   }
