@@ -5,17 +5,27 @@
  * @typedef {Set.<Coordinate>} Snake
  */
 /**
+ * @typedef {Set.<Coordinate>} Fruits
+ */
+/**
  * @typedef {'right'|'left'|'up'|'down'} Direction
  */
 /**
  * @type {Snake}
  */
-// const snake = new Set([[10, 10], [11, 10]]);
-const snake = new Set([[11, 10], [10, 10]]);
+let snake = new Set([[11, 10], [10, 10]]);
+/**
+ * @type {Fruits}
+ */
+let fruits = new Set([[3, 10], [2, 10], [4, 10]]);
 /**
  * @type {Direction}
  */
 let direction = "left";
+/**
+ * @type {number}
+ */
+let animation_frame_id;
 /**
  * @template T
  * @param {T|null|undefined} value The value to check
@@ -32,7 +42,7 @@ const COLUMN_COUNT = 20;
 const ROW_COUNT = 20;
 const CELL_WIDTH = 20;
 const CELL_HEIGHT = 20;
-const MOVE_INTERVAL = 500;
+const MOVE_INTERVAL = 300;
 /**
  * @type {HTMLCanvasElement | null}
  */
@@ -43,6 +53,40 @@ canvas.height = ROW_COUNT * CELL_HEIGHT + 1;
 const context = canvas.getContext("2d");
 assert(context, "game canvas should have a 2d context");
 let last_move_time = 0;
+/**
+ * @param {number} timestamp
+ */
+function render(timestamp) {
+  assert(context, "game canvas should be present");
+  assert(canvas, "game canvas should be present");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  if (!last_move_time) {
+    last_move_time = timestamp;
+  }
+  const elapsed_time = timestamp - last_move_time;
+  if (elapsed_time > MOVE_INTERVAL) {
+    last_move_time = timestamp;
+    move_snake();
+  }
+  draw_snake();
+  draw_fruits();
+  for (let x = 0; x < ROW_COUNT; x++) {
+    for (let y = 0; y < COLUMN_COUNT; y++) {
+      draw_board(x, y);
+    }
+  }
+  animation_frame_id = requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+function draw_fruits() {
+  assert(context, "game canvas should have a 2d context");
+  for (const coordinate of fruits) {
+    const position_x = (coordinate[0] * CELL_WIDTH) - 1 * CELL_WIDTH;
+    const position_y = (coordinate[1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+    context.fillStyle = "yellow";
+    context.fillRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
+  }
+}
 /**
  * @param {number} x
  * @param {number} y
@@ -63,38 +107,51 @@ function draw_snake() {
     context.fillRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
   }
 }
+function reset_game() {
+  snake = new Set([[11, 10], [10, 10]]);
+  fruits = new Set([[3, 10], [2, 10], [4, 10]]);
+  direction = "left";
+  last_move_time = 0;
+}
 /**
- * @param {Coordinate} coordinate The coordinate to move to
+ * @param {Coordinate} a
+ * @param {Coordinate} b
  */
-function move_snake(coordinate) {
+function do_coordinates_match(a, b) {
+  if (a[0] === b[0] && a[1] === b[1]) {
+    return true;
+  }
+  return false;
+}
+/**
+ * @param {Fruits} fruits
+ * @param {Coordinate} coordinate
+ */
+function does_snake_eat_fruit(fruits, coordinate) {
+  for (const _coordinate of fruits) {
+    if (do_coordinates_match(_coordinate, coordinate)) {
+      return true;
+    }
+  }
+  return false;
+}
+function move_snake() {
   assert(canvas, "game canvas should be present");
   assert(context, "game canvas should have a 2d context");
-  const tail = get_tail(snake);
-  const [tail_x, tail_y] = tail;
-  const position_tail_x = (tail_x * CELL_WIDTH) - 1 * CELL_WIDTH;
-  const position_tail_y = (tail_y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
-  context.clearRect(
-    position_tail_x,
-    position_tail_y,
-    canvas.width,
-    canvas.height,
-  );
-  // TODO: if eats apple, doesn't shift
-  snake.delete(tail);
-
-  const [head_x, head_y] = get_head(snake);
-  const position_head_x = (head_x * CELL_WIDTH) - 1 * CELL_WIDTH;
-  const position_head_y = (head_y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
-  context.fillStyle = "green";
-  context.fillRect(
-    position_head_x,
-    position_head_y,
-    CELL_WIDTH,
-    CELL_HEIGHT,
-  );
-  snake.add(coordinate);
+  const next_coordinate = get_next_coordinate(snake, direction);
+  if (does_snake_collide(snake, next_coordinate)) {
+    reset_game();
+    return;
+  }
+  if (does_snake_eat_fruit(fruits, next_coordinate)) {
+    const fruit = get_fruit(fruits, next_coordinate);
+    fruits.delete(fruit);
+  } else {
+    const tail = get_tail(snake);
+    snake.delete(tail);
+  }
+  snake.add(next_coordinate);
 }
-
 /**
  * @param {Snake} snake
  * @returns {Coordinate} The coordinate of the snake's head
@@ -110,7 +167,25 @@ function get_head(snake) {
   assert(head, "the tail of the snake should exist");
   return head;
 }
-
+/**
+ * @param {Fruits} fruits
+ * @param {Coordinate} coordinate
+ */
+function get_fruit(fruits, coordinate) {
+  assert(context, "game canvas should be present");
+  assert(canvas, "game canvas should have a 2d context");
+  /**
+   * @type {Coordinate|undefined}
+   */
+  let fruit;
+  for (const _coordinate of fruits) {
+    if (do_coordinates_match(_coordinate, coordinate)) {
+      fruit = _coordinate;
+    }
+  }
+  assert(fruit, "the fruit should exist on the board");
+  return fruit;
+}
 /**
  * @param {Snake} snake
  * @returns {Coordinate} The coordinate of the snake's tail
@@ -123,21 +198,22 @@ function get_tail(snake) {
   assert(tail, "the head of the snake should exist");
   return tail;
 }
-
 /**
  * @param {Snake} snake
  * @param {Coordinate} coordinate
  * @returns {boolean} A boolean representing if either the snake collides and dies or not
  */
 function does_snake_collide(snake, coordinate) {
-  for (const _coodinate of snake) {
-    if (_coodinate === coordinate) {
+  for (const _coordinate of snake) {
+    if (
+      _coordinate[0] === coordinate[0] &&
+      _coordinate[1] === coordinate[1]
+    ) {
       return true;
     }
   }
   return false;
 }
-
 /**
  * @param {Snake} snake
  * @param {Direction} direction
@@ -182,34 +258,18 @@ function get_next_coordinate(snake, direction) {
     }
   }
 }
-
 /**
- * @param {number} timestamp
+ * @param {number} x
  */
-function render(timestamp) {
-  assert(context, "game canvas should be present");
-  assert(context, "game canvas should have a 2d context");
-  if (!last_move_time) {
-    last_move_time = timestamp;
-  }
-  const elapsed_time = timestamp - last_move_time;
-  if (elapsed_time > MOVE_INTERVAL) {
-    last_move_time = timestamp;
-    const next_coordinate = get_next_coordinate(snake, direction);
-    if (does_snake_collide(snake, next_coordinate)) {
-      // TODO: handle end of game
-    }
-    move_snake(next_coordinate);
-  }
-  for (let x = 0; x < ROW_COUNT; x++) {
-    for (let y = 0; y < COLUMN_COUNT; y++) {
-      draw_board(x, y);
-      draw_snake();
-    }
-  }
-  requestAnimationFrame(render);
+function get_x_position(x) {
+  return (x * CELL_WIDTH) - 1 * CELL_WIDTH;
 }
-requestAnimationFrame(render);
+/**
+ * @param {number} y
+ */
+function get_y_position(y) {
+  return (y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+}
 document.addEventListener("keydown", (event) => {
   switch (event.key) {
     case "ArrowRight": {
