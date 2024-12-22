@@ -23,10 +23,6 @@ let fruits = new Set([[3, 10], [2, 10], [4, 10]]);
  */
 let direction = "left";
 /**
- * @type {number}
- */
-let animation_frame_id;
-/**
  * @template T
  * @param {T|null|undefined} value The value to check
  * @param {string} message Error message if assertion fails
@@ -43,6 +39,7 @@ const ROW_COUNT = 20;
 const CELL_WIDTH = 20;
 const CELL_HEIGHT = 20;
 const MOVE_INTERVAL = 300;
+const FRUIT_INTERVAL = 3000;
 /**
  * @type {HTMLCanvasElement | null}
  */
@@ -53,6 +50,7 @@ canvas.height = ROW_COUNT * CELL_HEIGHT + 1;
 const context = canvas.getContext("2d");
 assert(context, "game canvas should have a 2d context");
 let last_move_time = 0;
+let last_fruit_time = 0;
 /**
  * @param {number} timestamp
  */
@@ -63,11 +61,20 @@ function render(timestamp) {
   if (!last_move_time) {
     last_move_time = timestamp;
   }
-  const elapsed_time = timestamp - last_move_time;
-  if (elapsed_time > MOVE_INTERVAL) {
-    last_move_time = timestamp;
-    move_snake();
-  }
+  (() => {
+    const elapsed_time = timestamp - last_move_time;
+    if (elapsed_time > MOVE_INTERVAL) {
+      last_move_time = timestamp;
+      move_snake();
+    }
+  })();
+  (() => {
+    const elapsed_time = timestamp - last_fruit_time;
+    if (elapsed_time > FRUIT_INTERVAL) {
+      last_fruit_time = timestamp;
+      place_fruit();
+    }
+  })();
   draw_snake();
   draw_fruits();
   for (let x = 0; x < ROW_COUNT; x++) {
@@ -75,7 +82,7 @@ function render(timestamp) {
       draw_board(x, y);
     }
   }
-  animation_frame_id = requestAnimationFrame(render);
+  requestAnimationFrame(render);
 }
 requestAnimationFrame(render);
 function draw_fruits() {
@@ -101,11 +108,44 @@ function draw_board(x, y) {
 function draw_snake() {
   assert(context, "game canvas should have a 2d context");
   for (const coordinate of snake) {
+    const head = get_head(snake);
     const position_x = (coordinate[0] * CELL_WIDTH) - 1 * CELL_WIDTH;
     const position_y = (coordinate[1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+    if (coordinate === head) {
+      context.fillStyle = "lime";
+      context.fillRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
+      continue;
+    }
     context.fillStyle = "green";
     context.fillRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
   }
+}
+/**
+ * @param {number} min
+ * @param {number} max
+ */
+function get_random_number(min, max) {
+  return Math.floor(Math.random() * max) + min;
+}
+function get_free_coordinate() {
+  const random_board_coordinate = get_random_board_coordinate();
+  if (is_part_of_snake(snake, random_board_coordinate)) {
+    return get_free_coordinate();
+  }
+  return random_board_coordinate;
+}
+function get_random_board_coordinate() {
+  const x = get_random_number(1, COLUMN_COUNT);
+  const y = get_random_number(1, ROW_COUNT);
+  /**
+   * @type {Coordinate}
+   */
+  const coordinate = [x, y];
+  return coordinate;
+}
+function place_fruit() {
+  const free_coordinate = get_free_coordinate();
+  fruits.add(free_coordinate);
 }
 function reset_game() {
   snake = new Set([[11, 10], [10, 10]]);
@@ -151,6 +191,19 @@ function move_snake() {
     snake.delete(tail);
   }
   snake.add(next_coordinate);
+}
+/**
+ * @param {Snake} snake
+ * @param {Coordinate} coordinate
+ * @returns {boolean} Whether the coordinate is part of the snake
+ */
+function is_part_of_snake(snake, coordinate) {
+  for (const _coordinate of snake) {
+    if (do_coordinates_match(coordinate, _coordinate)) {
+      return true;
+    }
+  }
+  return false;
 }
 /**
  * @param {Snake} snake
@@ -257,18 +310,6 @@ function get_next_coordinate(snake, direction) {
       throw new Error("invalid direction");
     }
   }
-}
-/**
- * @param {number} x
- */
-function get_x_position(x) {
-  return (x * CELL_WIDTH) - 1 * CELL_WIDTH;
-}
-/**
- * @param {number} y
- */
-function get_y_position(y) {
-  return (y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
 }
 document.addEventListener("keydown", (event) => {
   switch (event.key) {
