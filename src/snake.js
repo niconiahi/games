@@ -43,7 +43,7 @@ const FRUIT_INTERVAL = 3000;
 /**
  * @type {HTMLCanvasElement | null}
  */
-const canvas = document.querySelector("#game");
+const canvas = document.querySelector("#snake");
 assert(canvas, "game canvas should be present");
 canvas.width = COLUMN_COUNT * CELL_WIDTH + 1;
 canvas.height = ROW_COUNT * CELL_HEIGHT + 1;

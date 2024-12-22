@@ -4,7 +4,7 @@ const routes: Route[] = [
   {
     pattern: new URLPattern({ pathname: "/snake" }),
     handler: () => {
-      const html = Deno.readFileSync("./src/snake/index.html");
+      const html = Deno.readFileSync("./src/index.html");
       return new Response(html, {
         headers: {
           "Content-Type": "text/html",
@@ -13,9 +13,9 @@ const routes: Route[] = [
     },
   },
   {
-    pattern: new URLPattern({ pathname: "/snake/main.js" }),
+    pattern: new URLPattern({ pathname: "/snake.js" }),
     handler: () => {
-      const script = Deno.readFileSync("./src/snake/main.js");
+      const script = Deno.readFileSync("./src/snake.js");
       return new Response(script, {
         headers: {
           "Content-Type": "application/javascript",
