@@ -88,8 +88,9 @@ requestAnimationFrame(render);
 function draw_fruits() {
   assert(context, "game canvas should have a 2d context");
   for (const coordinate of fruits) {
-    const position_x = (coordinate[0] * CELL_WIDTH) - 1 * CELL_WIDTH;
-    const position_y = (coordinate[1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+    const [x, y] = coordinate;
+    const position_x = get_position_x(x);
+    const position_y = get_position_y(y);
     context.fillStyle = "orange";
     context.fillRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
   }
@@ -105,12 +106,26 @@ function draw_board(x, y) {
   context.strokeStyle = "lightgray";
   context.strokeRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
 }
+/**
+ * @param {number} x
+ */
+function get_position_x(x) {
+  return (x * CELL_WIDTH) - 1 * CELL_WIDTH;
+}
+
+/**
+ * @param {number} y
+ */
+function get_position_y(y) {
+  return (y * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+}
 function draw_snake() {
   assert(context, "game canvas should have a 2d context");
   for (const coordinate of snake) {
     const head = get_head(snake);
-    const position_x = (coordinate[0] * CELL_WIDTH) - 1 * CELL_WIDTH;
-    const position_y = (coordinate[1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
+    const [x, y] = coordinate;
+    const position_x = get_position_x(x);
+    const position_y = get_position_y(y);
     if (coordinate === head) {
       context.save();
       context.translate(position_x, position_y);
