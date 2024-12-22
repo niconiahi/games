@@ -61,6 +61,11 @@ function render(timestamp) {
   if (!last_move_time) {
     last_move_time = timestamp;
   }
+  for (let x = 0; x < ROW_COUNT; x++) {
+    for (let y = 0; y < COLUMN_COUNT; y++) {
+      draw_board(x, y);
+    }
+  }
   (() => {
     const elapsed_time = timestamp - last_move_time;
     if (elapsed_time > MOVE_INTERVAL) {
@@ -77,11 +82,6 @@ function render(timestamp) {
   })();
   draw_snake();
   draw_fruits();
-  for (let x = 0; x < ROW_COUNT; x++) {
-    for (let y = 0; y < COLUMN_COUNT; y++) {
-      draw_board(x, y);
-    }
-  }
   requestAnimationFrame(render);
 }
 requestAnimationFrame(render);
@@ -90,7 +90,7 @@ function draw_fruits() {
   for (const coordinate of fruits) {
     const position_x = (coordinate[0] * CELL_WIDTH) - 1 * CELL_WIDTH;
     const position_y = (coordinate[1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
-    context.fillStyle = "yellow";
+    context.fillStyle = "orange";
     context.fillRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
   }
 }
@@ -102,7 +102,7 @@ function draw_board(x, y) {
   assert(context, "game canvas should have a 2d context");
   const position_x = x * CELL_WIDTH;
   const position_y = y * CELL_HEIGHT;
-  context.strokeStyle = "black";
+  context.strokeStyle = "lightgray";
   context.strokeRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
 }
 function draw_snake() {
@@ -112,8 +112,34 @@ function draw_snake() {
     const position_x = (coordinate[0] * CELL_WIDTH) - 1 * CELL_WIDTH;
     const position_y = (coordinate[1] * CELL_HEIGHT) - 1 * CELL_HEIGHT;
     if (coordinate === head) {
-      context.fillStyle = "lime";
-      context.fillRect(position_x, position_y, CELL_WIDTH, CELL_HEIGHT);
+      context.save();
+      context.translate(position_x, position_y);
+      context.beginPath();
+      if (direction === "left") {
+        context.moveTo(CELL_WIDTH, 0);
+        context.lineTo(0, CELL_HEIGHT / 2);
+        context.lineTo(CELL_WIDTH, CELL_HEIGHT);
+      }
+      if (direction === "right") {
+        context.moveTo(0, 0);
+        context.lineTo(CELL_WIDTH, CELL_HEIGHT / 2);
+        context.lineTo(0, CELL_HEIGHT);
+      }
+      if (direction === "up") {
+        context.moveTo(0, CELL_HEIGHT);
+        context.lineTo(CELL_WIDTH / 2, 0);
+        context.lineTo(CELL_WIDTH, CELL_HEIGHT);
+      }
+      if (direction === "down") {
+        context.moveTo(0, 0);
+        context.lineTo(CELL_WIDTH / 2, CELL_HEIGHT);
+        context.lineTo(CELL_WIDTH, 0);
+      }
+      context.closePath();
+      context.fillStyle = "green";
+      context.fill();
+      context.translate(-position_x, -position_y);
+      context.restore();
       continue;
     }
     context.fillStyle = "green";
@@ -258,10 +284,7 @@ function get_tail(snake) {
  */
 function does_snake_collide(snake, coordinate) {
   for (const _coordinate of snake) {
-    if (
-      _coordinate[0] === coordinate[0] &&
-      _coordinate[1] === coordinate[1]
-    ) {
+    if (do_coordinates_match(coordinate, _coordinate)) {
       return true;
     }
   }
