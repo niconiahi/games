@@ -2,7 +2,7 @@ import { type Route, route } from "@std/http/unstable-route";
 
 const routes: Route[] = [
   {
-    pattern: new URLPattern({ pathname: "/snake" }),
+    pattern: new URLPattern({ pathname: "/games" }),
     handler: () => {
       const html = Deno.readFileSync("./src/index.html");
       return new Response(html, {
