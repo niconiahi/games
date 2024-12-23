@@ -23,6 +23,17 @@ const routes: Route[] = [
       });
     },
   },
+  {
+    pattern: new URLPattern({ pathname: "/assert.js" }),
+    handler: () => {
+      const script = Deno.readFileSync("./src/assert.js");
+      return new Response(script, {
+        headers: {
+          "Content-Type": "application/javascript",
+        },
+      });
+    },
+  },
 ];
 
 function defaultHandler(_req: Request) {

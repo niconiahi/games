@@ -1,3 +1,4 @@
+import { assert } from "./assert.js";
 /**
  * @typedef {[number, number]} Coordinate
  */
@@ -22,18 +23,6 @@ let fruits = new Set([[3, 10], [2, 10], [4, 10]]);
  * @type {Direction}
  */
 let direction = "left";
-/**
- * @template T
- * @param {T|null|undefined} value The value to check
- * @param {string} message Error message if assertion fails
- * @returns {asserts value is T} Asserts that value is not null or undefined
- * @throws {Error} If assertion fails
- */
-function assert(value, message) {
-  if (value === null || value === undefined) {
-    throw new Error(message);
-  }
-}
 const COLUMN_COUNT = 20;
 const ROW_COUNT = 20;
 const CELL_WIDTH = 20;
