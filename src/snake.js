@@ -6,19 +6,19 @@ import { assert } from "./assert.js";
  * @typedef {Set.<Coordinate>} Snake
  */
 /**
- * @typedef {Set.<Coordinate>} Fruits
- */
-/**
- * @typedef {'right'|'left'|'up'|'down'} Direction
- */
-/**
  * @type {Snake}
  */
 let snake = new Set([[11, 10], [10, 10]]);
 /**
+ * @typedef {Set.<Coordinate>} Fruits
+ */
+/**
  * @type {Fruits}
  */
 let fruits = new Set([[3, 10], [2, 10], [4, 10]]);
+/**
+ * @typedef {'right'|'left'|'up'|'down'} Direction
+ */
 /**
  * @type {Direction}
  */
