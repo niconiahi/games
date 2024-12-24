@@ -44,8 +44,8 @@ let last_fruit_time = 0;
  * @param {number} timestamp
  */
 function render(timestamp) {
-  assert(context, "game canvas should be present");
   assert(canvas, "game canvas should be present");
+  assert(context, "game canvas should have a 2d context");
   context.clearRect(0, 0, canvas.width, canvas.height);
   if (!last_move_time) {
     last_move_time = timestamp;
