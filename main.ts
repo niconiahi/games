@@ -46,6 +46,28 @@ const routes: Route[] = [
     },
   },
   {
+    pattern: new URLPattern({ pathname: "/rpg" }),
+    handler: () => {
+      const html = Deno.readFileSync("./src/rpg.html");
+      return new Response(html, {
+        headers: {
+          "Content-Type": "text/html",
+        },
+      });
+    },
+  },
+  {
+    pattern: new URLPattern({ pathname: "/rpg.js" }),
+    handler: () => {
+      const script = Deno.readFileSync("./src/rpg.js");
+      return new Response(script, {
+        headers: {
+          "Content-Type": "application/javascript",
+        },
+      });
+    },
+  },
+  {
     pattern: new URLPattern({ pathname: "/assert.js" }),
     handler: () => {
       const script = Deno.readFileSync("./src/assert.js");

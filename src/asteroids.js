@@ -58,6 +58,10 @@ document.addEventListener("keydown", (event) => {
       ship.rotation -= ROTATION_SPEED;
       break;
     }
+    case "ArrowUp": {
+      ship.rotation -= ROTATION_SPEED;
+      break;
+    }
     case "ArrowRight": {
       console.log("ship.rotation", ship.rotation);
       ship.rotation += ROTATION_SPEED;
