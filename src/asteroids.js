@@ -4,7 +4,7 @@ import { assert } from "./assert.js";
  */
 const canvas = document.querySelector("#asteroids");
 assert(canvas, "game canvas should be present");
-const ROTATION_SPEED = 10;
+const ROTATION_SPEED = 7;
 const context = canvas.getContext("2d");
 assert(context, "game canvas should have a 2d context");
 const pixel_ratio = globalThis.devicePixelRatio;
@@ -33,16 +33,16 @@ function draw_ship() {
   assert(context, "game canvas should have a 2d context");
   context.save();
   context.strokeStyle = "black";
-  context.lineWidth = 2;
+  context.lineWidth = 1;
   console.log("draw_ship => ship.rotation", ship.rotation);
   context.translate(ship.x, ship.y);
   context.rotate(to_radians(ship.rotation));
-  context.strokeRect(
-    -SHIP_WIDTH / 2,
-    -SHIP_HEIGHT / 2,
-    SHIP_WIDTH,
-    SHIP_HEIGHT,
-  );
+  context.beginPath();
+  context.moveTo(-SHIP_WIDTH / 2, SHIP_HEIGHT / 2);
+  context.lineTo(0, -SHIP_HEIGHT / 2);
+  context.lineTo(SHIP_WIDTH / 2, SHIP_HEIGHT / 2);
+  context.closePath();
+  context.fill();
   context.restore();
 }
 /**
