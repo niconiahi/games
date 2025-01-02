@@ -32,6 +32,12 @@ export class World extends THREE.Mesh {
     for (let i = 0; i < count; i++) {
       const tree = new Tree();
       this.compose_random_position(tree);
+      console.log(
+        "adding a tree at",
+        tree.position.x,
+        tree.position.y,
+        tree.position.z,
+      );
       this.normalize_position(tree);
       this.#elements.add(tree);
     }

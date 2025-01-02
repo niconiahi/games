@@ -3,7 +3,7 @@ import { Element } from "./element.ts";
 
 export class Tree extends Element {
   constructor() {
-    const HEIGHT = 0.5;
+    const HEIGHT = 1;
     const geometry = new THREE.ConeGeometry(0.3, HEIGHT, 8);
     const material = new THREE.MeshStandardMaterial({
       color: "#90EE90",
