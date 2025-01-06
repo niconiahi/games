@@ -11,6 +11,7 @@
     "npm:svelte@5": "5.16.0_acorn@8.14.0",
     "npm:three@0.171": "0.171.0",
     "npm:typescript@5": "5.7.2",
+    "npm:valibot@^1.0.0-beta.10": "1.0.0-beta.10_typescript@5.7.2",
     "npm:vite@^5.4.11": "5.4.11"
   },
   "npm": {
@@ -526,6 +527,12 @@
     "typescript@5.7.2": {
       "integrity": "sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg=="
     },
+    "valibot@1.0.0-beta.10_typescript@5.7.2": {
+      "integrity": "sha512-nmo3nxvXRrxwDYZznK3aTgYv7ZA/SUZJ/s+pLY4Tqsex/fgwZ9XrrQ14jjozjUaeduQ9PhXHE2Xx1uMb0HePYw==",
+      "dependencies": [
+        "typescript"
+      ]
+    },
     "vite@5.4.11": {
       "integrity": "sha512-c7jFQRklXua0mTzneGW9QVyxFjUgwcihC4bXEtujIo2ouWCe1Ajt/amn2PCxYnhYfd5k09JX3SB7OYWFKYqj8Q==",
       "dependencies": [
@@ -558,6 +565,7 @@
         "npm:svelte@5",
         "npm:three@0.171",
         "npm:typescript@5",
+        "npm:valibot@^1.0.0-beta.10",
         "npm:vite@^5.4.11"
       ]
     }

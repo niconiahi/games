@@ -1,5 +1,6 @@
 <script>
 import * as THREE from "three";
+import * as v from "valibot";
 import GUI from "lil-gui";
 import { World } from "./src/world.ts";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -45,9 +46,14 @@ const object = {
   height: 10,
   width: 10,
 };
-gui.add(object, "tree_count", 1, 20, 1).name("Tree count");
-gui.add(object, "height", 1, 20, 1).name("Height");
-gui.add(object, "width", 1, 20, 1).name("Width");
+gui
+  .add(object, "tree_count", 1, 20, 1)
+  .name("Tree count")
+  // @ts-ignore it's not a problem, really
+  .onChange((value) => {
+    const next_trees = v.parse(v.number(), value);
+    world.make_trees(next_trees);
+  });
 
 const world = new World(object.width, object.height, object.tree_count);
 scene.add(world);

@@ -11,7 +11,8 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
   },
   "dependencies": {
-    "three": "^0.171.0"
+    "three": "^0.171.0",
+    "valibot": "^1.0.0-beta.10"
   },
   "devDependencies": {
     "@types/three": "^0.171.0",
