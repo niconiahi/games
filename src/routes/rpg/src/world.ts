@@ -2,18 +2,26 @@ import * as THREE from "three";
 import { Terrain } from "./terrain";
 import type { Element } from "./element";
 import { Tree } from "./tree";
+import { Rock } from "./rock";
+import { instance } from "valibot";
 
 export class World extends THREE.Mesh {
   #map = new THREE.Group();
   #width;
   #height;
-  constructor(width: number, height: number, tree_count: number) {
+  constructor(
+    width: number,
+    height: number,
+    tree_count: number,
+    rock_count: number,
+  ) {
     super();
     this.#width = width;
     this.#height = height;
     this.make_terrain();
     this.make_grid();
     this.make_trees(tree_count);
+    this.make_rocks(rock_count);
     this.add(this.#map);
   }
   get_positions() {
@@ -49,15 +57,51 @@ export class World extends THREE.Mesh {
     }
     element.position.copy(next_position);
   }
+  remove_object(target: THREE.Object3D, parent: THREE.Group) {
+    target.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        if (object.geometry) {
+          object.geometry.dispose();
+        }
+        if (object.material) {
+          if (Array.isArray(object.material)) {
+            for (const m of object.material) {
+              m.dispose();
+            }
+          } else {
+            object.material.dispose();
+          }
+        }
+      }
+    });
+    parent.remove(target);
+    target.clear();
+  }
+  make_rocks(count: number) {
+    const prev_rocks = this.#map.getObjectByName("rocks");
+    if (prev_rocks) {
+      this.remove_object(prev_rocks, this.#map);
+    }
+    const group = new THREE.Group();
+    group.name = "rocks";
+    for (let i = 0; i < count; i++) {
+      const rock = new Rock();
+      this.compose_random_position(rock);
+      console.log(
+        "adding a rock at",
+        rock.position.x,
+        rock.position.y,
+        rock.position.z,
+      );
+      this.normalize_position(rock);
+      group.add(rock);
+    }
+    this.#map.add(group);
+  }
   make_trees(count: number) {
     const prev_trees = this.#map.getObjectByName("trees");
     if (prev_trees) {
-      prev_trees.traverse((object) => {
-        object.clear();
-        if (object.parent) {
-          object.parent.clear();
-        }
-      });
+      this.remove_object(prev_trees, this.#map);
     }
     const group = new THREE.Group();
     group.name = "trees";

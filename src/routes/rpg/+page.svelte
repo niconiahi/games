@@ -42,9 +42,10 @@ scene.add(ambient_light);
 
 const gui = new GUI();
 const object = {
-  tree_count: 3,
   height: 10,
   width: 10,
+  tree_count: 7,
+  rock_count: 7,
 };
 gui
   .add(object, "tree_count", 1, 20, 1)
@@ -54,8 +55,21 @@ gui
     const next_trees = v.parse(v.number(), value);
     world.make_trees(next_trees);
   });
+gui
+  .add(object, "rock_count", 1, 20, 1)
+  .name("Rock count")
+  // @ts-ignore it's not a problem, really
+  .onChange((value) => {
+    const next_rocks = v.parse(v.number(), value);
+    world.make_rocks(next_rocks);
+  });
 
-const world = new World(object.width, object.height, object.tree_count);
+const world = new World(
+  object.width,
+  object.height,
+  object.tree_count,
+  object.rock_count,
+);
 scene.add(world);
 
 function tick() {
