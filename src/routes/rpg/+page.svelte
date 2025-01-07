@@ -46,6 +46,7 @@ const object = {
   width: 10,
   tree_count: 7,
   rock_count: 7,
+  bush_count: 7,
 };
 gui
   .add(object, "tree_count", 1, 20, 1)
@@ -63,12 +64,21 @@ gui
     const next_rocks = v.parse(v.number(), value);
     world.make_rocks(next_rocks);
   });
+gui
+  .add(object, "bush_count", 1, 20, 1)
+  .name("Bush count")
+  // @ts-ignore it's not a problem, really
+  .onChange((value) => {
+    const next_bushes = v.parse(v.number(), value);
+    world.make_bushes(next_bushes);
+  });
 
 const world = new World(
   object.width,
   object.height,
   object.tree_count,
   object.rock_count,
+  object.bush_count,
 );
 scene.add(world);
 

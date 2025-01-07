@@ -3,7 +3,7 @@ import { Terrain } from "./terrain";
 import type { Element } from "./element";
 import { Tree } from "./tree";
 import { Rock } from "./rock";
-import { instance } from "valibot";
+import { Bush } from "./bush";
 
 export class World extends THREE.Mesh {
   #map = new THREE.Group();
@@ -14,6 +14,7 @@ export class World extends THREE.Mesh {
     height: number,
     tree_count: number,
     rock_count: number,
+    bushes_count: number,
   ) {
     super();
     this.#width = width;
@@ -22,6 +23,7 @@ export class World extends THREE.Mesh {
     this.make_grid();
     this.make_trees(tree_count);
     this.make_rocks(rock_count);
+    this.make_bushes(bushes_count);
     this.add(this.#map);
   }
   get_positions() {
@@ -116,6 +118,27 @@ export class World extends THREE.Mesh {
       );
       this.normalize_position(tree);
       group.add(tree);
+    }
+    this.#map.add(group);
+  }
+  make_bushes(count: number) {
+    const prev_bushes = this.#map.getObjectByName("bushes");
+    if (prev_bushes) {
+      this.remove_object(prev_bushes, this.#map);
+    }
+    const group = new THREE.Group();
+    group.name = "bushes";
+    for (let i = 0; i < count; i++) {
+      const bush = new Bush();
+      this.compose_random_position(bush);
+      console.log(
+        "adding a bush at",
+        bush.position.x,
+        bush.position.y,
+        bush.position.z,
+      );
+      this.normalize_position(bush);
+      group.add(bush);
     }
     this.#map.add(group);
   }
