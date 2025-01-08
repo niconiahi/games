@@ -7,6 +7,7 @@ import { Bush } from "./bush";
 
 export class World extends THREE.Mesh {
   #map = new THREE.Group();
+  #positions = new Set<string>();
   #width;
   #height;
   constructor(
@@ -26,38 +27,35 @@ export class World extends THREE.Mesh {
     this.make_bushes(bushes_count);
     this.add(this.#map);
   }
-  get_positions() {
-    const positions: Set<string> = new Set<string>([]);
-    this.#map.traverse((child) => {
-      positions.add(this.serialize_coordinate(child.position));
-    });
-    return positions;
-  }
   serialize_coordinate(v: THREE.Vector3) {
-    return `${v.x},${v.y},${v.z}`;
+    return `${v.x},${v.z}`;
   }
-  deserialize_coordinate(serialized_v: string) {
-    const [x, y, z] = serialized_v.split(",").map((coordinate) => {
-      return Number(coordinate);
-    });
-    return new THREE.Vector3(x, y, z);
-  }
-  normalize_position(element: Element) {
-    element.position.set(
-      element.position.x - this.#width / 2 + 0.5,
-      element.position.y,
-      element.position.z - this.#height / 2 + 0.5,
+  decompose_normalized_position(v: THREE.Vector3) {
+    return new THREE.Vector3(
+      v.x + this.#width / 2 - 0.5,
+      v.y,
+      v.z + this.#height / 2 - 0.5,
     );
   }
-  compose_random_position(element: Element) {
+  compose_normalized_position(v: THREE.Vector3): THREE.Vector3 {
+    return new THREE.Vector3(
+      v.x - this.#width / 2 + 0.5,
+      v.y,
+      v.z - this.#height / 2 + 0.5,
+    );
+  }
+  add_position(v: THREE.Vector3) {
+    this.#positions.add(this.serialize_coordinate(v));
+  }
+  compose_random_position(element: Element): THREE.Vector3 {
     const x = Math.floor(Math.random() * this.#width);
     const z = Math.floor(Math.random() * this.#height);
     const next_position = new THREE.Vector3(x, element.position.y, z);
-    const positions = this.get_positions();
-    if (positions.has(this.serialize_coordinate(next_position))) {
-      this.compose_random_position(element);
+    const next_serialized_position = this.serialize_coordinate(next_position);
+    if (this.#positions.has(next_serialized_position)) {
+      return this.compose_random_position(element);
     }
-    element.position.copy(next_position);
+    return next_position;
   }
   remove_object(target: THREE.Object3D, parent: THREE.Group) {
     target.traverse((object) => {
@@ -88,14 +86,13 @@ export class World extends THREE.Mesh {
     group.name = "rocks";
     for (let i = 0; i < count; i++) {
       const rock = new Rock();
-      this.compose_random_position(rock);
-      console.log(
-        "adding a rock at",
-        rock.position.x,
-        rock.position.y,
-        rock.position.z,
-      );
-      this.normalize_position(rock);
+      const random_position = this.compose_random_position(rock);
+      const serialized_coordinate = this.serialize_coordinate(random_position);
+      this.#positions.add(serialized_coordinate);
+      const normalized_position =
+        this.compose_normalized_position(random_position);
+      rock.position.copy(normalized_position);
+      console.log("adding a rock at", serialized_coordinate);
       group.add(rock);
     }
     this.#map.add(group);
@@ -109,14 +106,13 @@ export class World extends THREE.Mesh {
     group.name = "trees";
     for (let i = 0; i < count; i++) {
       const tree = new Tree();
-      this.compose_random_position(tree);
-      console.log(
-        "adding a tree at",
-        tree.position.x,
-        tree.position.y,
-        tree.position.z,
-      );
-      this.normalize_position(tree);
+      const random_position = this.compose_random_position(tree);
+      const serialized_coordinate = this.serialize_coordinate(random_position);
+      this.#positions.add(serialized_coordinate);
+      const normalized_position =
+        this.compose_normalized_position(random_position);
+      tree.position.copy(normalized_position);
+      console.log("adding a tree at", serialized_coordinate);
       group.add(tree);
     }
     this.#map.add(group);
@@ -130,14 +126,13 @@ export class World extends THREE.Mesh {
     group.name = "bushes";
     for (let i = 0; i < count; i++) {
       const bush = new Bush();
-      this.compose_random_position(bush);
-      console.log(
-        "adding a bush at",
-        bush.position.x,
-        bush.position.y,
-        bush.position.z,
-      );
-      this.normalize_position(bush);
+      const random_position = this.compose_random_position(bush);
+      const serialized_coordinate = this.serialize_coordinate(random_position);
+      this.#positions.add(serialized_coordinate);
+      const normalized_position =
+        this.compose_normalized_position(random_position);
+      bush.position.copy(normalized_position);
+      console.log("adding a bush at", serialized_coordinate);
       group.add(bush);
     }
     this.#map.add(group);
