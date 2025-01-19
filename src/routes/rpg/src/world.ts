@@ -4,40 +4,46 @@ import type { Element } from "./element";
 import { Tree } from "./tree";
 import { Rock } from "./rock";
 import { Bush } from "./bush";
+import { Player } from "./player";
 
 export class World extends THREE.Mesh {
   #map = new THREE.Group();
+  #camera;
+  #terrain;
   #positions = new Set<string>();
   #width;
   #height;
   constructor(
     width: number,
     height: number,
+    camera: THREE.Camera,
     tree_count: number,
     rock_count: number,
-    bushes_count: number,
+    bush_count: number,
   ) {
     super();
     this.#width = width;
     this.#height = height;
-    this.make_terrain();
+    this.#camera = camera;
+    this.#terrain = this.make_terrain();
     this.make_grid();
     this.make_trees(tree_count);
     this.make_rocks(rock_count);
-    this.make_bushes(bushes_count);
+    this.make_bushes(bush_count);
+    this.make_player();
     this.add(this.#map);
   }
   serialize_coordinate(v: THREE.Vector3) {
     return `${v.x},${v.z}`;
   }
-  decompose_normalized_position(v: THREE.Vector3) {
+  denormalize_position(v: THREE.Vector3) {
     return new THREE.Vector3(
       v.x + this.#width / 2 - 0.5,
       v.y,
       v.z + this.#height / 2 - 0.5,
     );
   }
-  compose_normalized_position(v: THREE.Vector3): THREE.Vector3 {
+  normalize_position(v: THREE.Vector3): THREE.Vector3 {
     return new THREE.Vector3(
       v.x - this.#width / 2 + 0.5,
       v.y,
@@ -89,8 +95,8 @@ export class World extends THREE.Mesh {
       const random_position = this.compose_random_position(rock);
       const serialized_coordinate = this.serialize_coordinate(random_position);
       this.#positions.add(serialized_coordinate);
-      const normalized_position =
-        this.compose_normalized_position(random_position);
+      rock.name = `rock-${serialized_coordinate}`;
+      const normalized_position = this.normalize_position(random_position);
       rock.position.copy(normalized_position);
       console.log("adding a rock at", serialized_coordinate);
       group.add(rock);
@@ -109,12 +115,30 @@ export class World extends THREE.Mesh {
       const random_position = this.compose_random_position(tree);
       const serialized_coordinate = this.serialize_coordinate(random_position);
       this.#positions.add(serialized_coordinate);
-      const normalized_position =
-        this.compose_normalized_position(random_position);
+      tree.name = `tree-${serialized_coordinate}`;
+      const normalized_position = this.normalize_position(random_position);
       tree.position.copy(normalized_position);
       console.log("adding a tree at", serialized_coordinate);
       group.add(tree);
     }
+    this.#map.add(group);
+  }
+  make_player() {
+    const prev_players = this.#map.getObjectByName("players");
+    if (prev_players) {
+      this.remove_object(prev_players, this.#map);
+    }
+    const group = new THREE.Group();
+    group.name = "players";
+    const player = new Player(this.#camera, this.#terrain, this);
+    const random_position = this.compose_random_position(player);
+    const serialized_coordinate = this.serialize_coordinate(random_position);
+    this.#positions.add(serialized_coordinate);
+    player.name = `player-${serialized_coordinate}`;
+    const normalized_position = this.normalize_position(random_position);
+    player.position.copy(normalized_position);
+    console.log("adding a player at", serialized_coordinate);
+    group.add(player);
     this.#map.add(group);
   }
   make_bushes(count: number) {
@@ -129,8 +153,8 @@ export class World extends THREE.Mesh {
       const random_position = this.compose_random_position(bush);
       const serialized_coordinate = this.serialize_coordinate(random_position);
       this.#positions.add(serialized_coordinate);
-      const normalized_position =
-        this.compose_normalized_position(random_position);
+      bush.name = `bush-${serialized_coordinate}`;
+      const normalized_position = this.normalize_position(random_position);
       bush.position.copy(normalized_position);
       console.log("adding a bush at", serialized_coordinate);
       group.add(bush);
@@ -143,8 +167,10 @@ export class World extends THREE.Mesh {
     const grid_helper = new THREE.GridHelper(size, divisions);
     this.add(grid_helper);
   }
+  get_element(position: THREE.Vector3) {}
   make_terrain() {
     const terrain = new Terrain(this.#width, this.#height);
     this.add(terrain);
+    return terrain;
   }
 }

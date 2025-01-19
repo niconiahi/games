@@ -28,8 +28,8 @@ camera.zoom = (globalThis.innerWidth * aspect_ratio) / 18;
 camera.updateProjectionMatrix();
 scene.add(camera);
 
-const camera_helper = new THREE.CameraHelper(camera);
-scene.add(camera_helper);
+// const camera_helper = new THREE.CameraHelper(camera);
+// scene.add(camera_helper);
 const canvas = document.querySelector("canvas");
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
@@ -47,6 +47,7 @@ const object = {
   tree_count: 7,
   rock_count: 7,
   bush_count: 7,
+  player_count: 1,
 };
 gui
   .add(object, "tree_count", 1, 20, 1)
@@ -76,6 +77,7 @@ gui
 const world = new World(
   object.width,
   object.height,
+  camera,
   object.tree_count,
   object.rock_count,
   object.bush_count,

@@ -5,6 +5,7 @@ export class Terrain extends THREE.Mesh {
     const geometry = new THREE.PlaneGeometry(width, height, width, height);
     const material = new THREE.MeshStandardMaterial({ color: "green" });
     super(geometry, material);
+    this.name = "Terrain";
     this.rotation.x = -Math.PI / 2;
   }
 }
