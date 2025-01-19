@@ -50,9 +50,6 @@ export class World extends THREE.Mesh {
       v.z - this.#height / 2 + 0.5,
     );
   }
-  add_position(v: THREE.Vector3) {
-    this.#positions.add(this.serialize_coordinate(v));
-  }
   compose_random_position(element: Element): THREE.Vector3 {
     const x = Math.floor(Math.random() * this.#width);
     const z = Math.floor(Math.random() * this.#height);
@@ -130,7 +127,7 @@ export class World extends THREE.Mesh {
     }
     const group = new THREE.Group();
     group.name = "players";
-    const player = new Player(this.#camera, this.#terrain, this);
+    const player = new Player(this.#camera, this.#terrain);
     const random_position = this.compose_random_position(player);
     const serialized_coordinate = this.serialize_coordinate(random_position);
     this.#positions.add(serialized_coordinate);
