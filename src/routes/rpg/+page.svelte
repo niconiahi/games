@@ -44,9 +44,9 @@ const gui = new GUI();
 const object = {
   height: 10,
   width: 10,
-  tree_count: 0,
-  rock_count: 0,
-  bush_count: 0,
+  tree_count: 6,
+  rock_count: 6,
+  bush_count: 6,
   player_count: 1,
 };
 gui

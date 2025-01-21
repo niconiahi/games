@@ -14,7 +14,7 @@ export class PathFinder {
       return [];
     }
     const path: THREE.Vector3[] = [];
-    const MAX_ATTEMPT_COUNT = 20;
+    const MAX_ATTEMPT_COUNT = 10;
     let found = false;
     let attemp = 1;
     while (!found) {
@@ -78,7 +78,7 @@ export class PathFinder {
       const top_position = new THREE.Vector3(
         position.x,
         position.y,
-        position.z + 1,
+        position.z - 1,
       );
       positions.push(top_position);
     }

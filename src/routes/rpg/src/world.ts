@@ -144,9 +144,7 @@ export class World extends THREE.Mesh {
     const group = new THREE.Group();
     group.name = "players";
     const player = new Player(this.#camera, this.#terrain, this.#path_finder);
-    // const random_position = this.compose_random_position(player);
-    // const random_position = this.compose_random_position(player);
-    const random_position = new THREE.Vector3(2.5, 0.4, 9.5);
+    const random_position = this.compose_random_position(player);
     const serialized_coordinate = this.serialize_coordinate(random_position);
     this.#elements.set(serialized_coordinate, player);
     player.name = `player-${serialized_coordinate}`;

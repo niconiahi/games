@@ -44,7 +44,6 @@ export class Player extends Element {
     if (path.length === 0) {
       return;
     }
-    console.log("path", path);
     let index = 0;
     const id = setInterval(() => {
       if (index === path.length - 1) {
