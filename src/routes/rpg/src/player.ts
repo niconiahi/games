@@ -1,9 +1,8 @@
 import * as THREE from "three";
 import { Element } from "./element.ts";
 import type { Terrain } from "./terrain.ts";
-import { center } from "./position.ts";
-import type { World } from "./world.ts";
 import type { PathFinder } from "./path-finder.ts";
+import { center } from "./position.ts";
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -11,14 +10,8 @@ const pointer = new THREE.Vector2();
 export class Player extends Element {
   #camera;
   #terrain;
-  #world;
   #path_finder;
-  constructor(
-    camera: THREE.Camera,
-    terrain: Terrain,
-    world: World,
-    path_finder: PathFinder,
-  ) {
+  constructor(camera: THREE.Camera, terrain: Terrain, path_finder: PathFinder) {
     const HEIGHT = 0.2;
     const geometry = new THREE.CapsuleGeometry(0.3, HEIGHT, 8);
     const material = new THREE.MeshStandardMaterial({
@@ -29,7 +22,6 @@ export class Player extends Element {
     this.position.set(0, HEIGHT * 2, 0);
     this.#camera = camera;
     this.#terrain = terrain;
-    this.#world = world;
     this.#path_finder = path_finder;
     window.addEventListener("mousedown", this.on_mouse_down.bind(this));
   }
@@ -42,11 +34,24 @@ export class Player extends Element {
       const hit_point = intersects[0].point;
       const start_position = this.position;
       const end_position = center(
-        this.#world.denormalize_position(
-          new THREE.Vector3(hit_point.x, this.position.y, hit_point.z),
-        ),
+        new THREE.Vector3(hit_point.x, this.position.y, hit_point.z),
       );
-      this.#path_finder.search(start_position, end_position);
+      const path = this.#path_finder.search(start_position, end_position);
+      this.walk(path);
     }
+  }
+  walk(path: THREE.Vector3[]) {
+    if (path.length === 0) {
+      return;
+    }
+    console.log("path", path);
+    let index = 0;
+    const id = setInterval(() => {
+      if (index === path.length - 1) {
+        clearInterval(id);
+      }
+      this.position.copy(path[index]);
+      index++;
+    }, 300);
   }
 }
