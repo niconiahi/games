@@ -6,13 +6,14 @@ import { center } from "./position.ts";
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
+const WALK_SPEED = 200;
+const HEIGHT = 0.2;
 
 export class Player extends Element {
   #camera;
   #terrain;
   #path_finder;
   constructor(camera: THREE.Camera, terrain: Terrain, path_finder: PathFinder) {
-    const HEIGHT = 0.2;
     const geometry = new THREE.CapsuleGeometry(0.3, HEIGHT, 8);
     const material = new THREE.MeshStandardMaterial({
       color: "red",
@@ -51,6 +52,6 @@ export class Player extends Element {
       }
       this.position.copy(path[index]);
       index++;
-    }, 300);
+    }, WALK_SPEED);
   }
 }

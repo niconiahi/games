@@ -13,6 +13,9 @@ export class PathFinder {
     if (_end.x === _start.x && _end.z === _start.z) {
       return [];
     }
+    if (this.#world.get_element(_end)) {
+      return [];
+    }
     const path: THREE.Vector3[] = [];
     const MAX_ATTEMPT_COUNT = 10;
     let found = false;
@@ -28,8 +31,8 @@ export class PathFinder {
       } else {
         next_candidate = _start;
       }
-      const neighboring_positions =
-        this.get_neighboring_positions(next_candidate);
+      const neighboring_positions = this.get_neighboring_positions(next_candidate);
+      const free_positions = this.get_free_positions(neighboring_positions);
       if (
         neighboring_positions.some((neighbouring_position) => {
           return (
@@ -42,10 +45,7 @@ export class PathFinder {
         path.push(_end);
         break;
       }
-      const closest_position = this.get_closest_position(
-        neighboring_positions,
-        _end,
-      );
+      const closest_position = this.get_closest_position(free_positions, _end);
       attemp++;
       path.push(closest_position);
     }
@@ -53,42 +53,35 @@ export class PathFinder {
       return this.#world.normalize_position(position);
     });
   }
+  get_free_positions(positions: THREE.Vector3[]): THREE.Vector3[] {
+    return positions.filter((position) => {
+      const element = this.#world.get_element(position);
+      if (element) {
+        return false;
+      }
+      return true;
+    });
+  }
   get_neighboring_positions(position: THREE.Vector3) {
     const positions: THREE.Vector3[] = [];
     // left
     if (position.x > 0.5) {
-      const left_position = new THREE.Vector3(
-        position.x - 1,
-        position.y,
-        position.z,
-      );
+      const left_position = new THREE.Vector3(position.x - 1, position.y, position.z);
       positions.push(left_position);
     }
     // right
     if (position.x < this.#world.width - 1) {
-      const right_position = new THREE.Vector3(
-        position.x + 1,
-        position.y,
-        position.z,
-      );
+      const right_position = new THREE.Vector3(position.x + 1, position.y, position.z);
       positions.push(right_position);
     }
     // top
     if (position.z > 0.5) {
-      const top_position = new THREE.Vector3(
-        position.x,
-        position.y,
-        position.z - 1,
-      );
+      const top_position = new THREE.Vector3(position.x, position.y, position.z - 1);
       positions.push(top_position);
     }
     // bottom
     if (position.z < this.#world.height - 1) {
-      const top_position = new THREE.Vector3(
-        position.x,
-        position.y,
-        position.z + 1,
-      );
+      const top_position = new THREE.Vector3(position.x, position.y, position.z + 1);
       positions.push(top_position);
     }
     return positions;
