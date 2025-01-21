@@ -99,7 +99,6 @@ export class World extends THREE.Mesh {
       rock.name = `rock-${serialized_coordinate}`;
       const normalized_position = this.normalize_position(random_position);
       rock.position.copy(center(normalized_position));
-      console.log("adding a rock at", serialized_coordinate);
       group.add(rock);
     }
     this.#map.add(group);
