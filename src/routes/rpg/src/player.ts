@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { Element } from "./element.ts";
 import type { Terrain } from "./terrain.ts";
+import { center } from "./position.ts";
 import type { World } from "./world.ts";
-import { center_element } from "./position.ts";
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -10,7 +10,8 @@ const pointer = new THREE.Vector2();
 export class Player extends Element {
   #camera;
   #terrain;
-  constructor(camera: THREE.Camera, terrain: Terrain) {
+  #world;
+  constructor(camera: THREE.Camera, terrain: Terrain, world: World) {
     const HEIGHT = 0.2;
     const geometry = new THREE.CapsuleGeometry(0.3, HEIGHT, 8);
     const material = new THREE.MeshStandardMaterial({
@@ -21,6 +22,7 @@ export class Player extends Element {
     this.position.set(0, HEIGHT * 2, 0);
     this.#camera = camera;
     this.#terrain = terrain;
+    this.#world = world;
     window.addEventListener("mousedown", this.on_mouse_down.bind(this));
   }
   on_mouse_down(event: MouseEvent) {
@@ -30,10 +32,16 @@ export class Player extends Element {
     const intersects = raycaster.intersectObject(this.#terrain);
     if (intersects.length > 0) {
       const hit_point = intersects[0].point;
-      const position = center_element(
-        new THREE.Vector3(hit_point.x, this.position.y, hit_point.z),
+      const position = center(
+        this.#world.denormalize_position(
+          new THREE.Vector3(hit_point.x, this.position.y, hit_point.z),
+        ),
       );
-      this.position.copy(position);
+      const element = this.#world.get_element(position);
+      console.log("element", element);
+      const elements = this.#world.get_elements();
+      console.log("elements", elements);
+      // this.position.copy(position);
     }
   }
 }
