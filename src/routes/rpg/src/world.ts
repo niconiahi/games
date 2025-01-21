@@ -46,13 +46,13 @@ export class World extends THREE.Mesh {
   normalize_position(v: THREE.Vector3): THREE.Vector3 {
     return new THREE.Vector3(v.x - this.width / 2, v.y, v.z - this.height / 2);
   }
-  compose_random_position(element: Element): THREE.Vector3 {
+  get_random_position(element: Element): THREE.Vector3 {
     const x = Math.floor(Math.random() * this.width);
     const z = Math.floor(Math.random() * this.height);
-    const next_position = new THREE.Vector3(x, element.position.y, z);
-    const next_serialized_position = this.serialize_coordinate(next_position);
-    if (this.#elements.has(next_serialized_position)) {
-      return this.compose_random_position(element);
+    const next_position = center(new THREE.Vector3(x, element.position.y, z));
+    const existing_element = this.get_element(next_position);
+    if (existing_element) {
+      return this.get_random_position(element);
     }
     return next_position;
   }
@@ -88,12 +88,12 @@ export class World extends THREE.Mesh {
     group.name = "rocks";
     for (let i = 0; i < count; i++) {
       const rock = new Rock();
-      const position = center(this.compose_random_position(rock));
+      const position = this.get_random_position(rock);
       const serialized_coordinate = this.serialize_coordinate(position);
       this.#elements.set(serialized_coordinate, rock);
       rock.name = `rock-${serialized_coordinate}`;
       const normalized_position = this.normalize_position(position);
-      rock.position.copy(center(normalized_position));
+      rock.position.copy(normalized_position);
       group.add(rock);
     }
     this.#map.add(group);
@@ -107,7 +107,7 @@ export class World extends THREE.Mesh {
     group.name = "trees";
     for (let i = 0; i < count; i++) {
       const tree = new Tree();
-      const position = center(this.compose_random_position(tree));
+      const position = this.get_random_position(tree);
       const serialized_coordinate = this.serialize_coordinate(position);
       this.#elements.set(serialized_coordinate, tree);
       tree.name = `tree-${serialized_coordinate}`;
@@ -126,7 +126,7 @@ export class World extends THREE.Mesh {
     group.name = "bushes";
     for (let i = 0; i < count; i++) {
       const bush = new Bush();
-      const position = center(this.compose_random_position(bush));
+      const position = this.get_random_position(bush);
       const serialized_coordinate = this.serialize_coordinate(position);
       this.#elements.set(serialized_coordinate, bush);
       bush.name = `bush-${serialized_coordinate}`;
@@ -144,7 +144,7 @@ export class World extends THREE.Mesh {
     const group = new THREE.Group();
     group.name = "players";
     const player = new Player(this.#camera, this.#terrain, this.#path_finder);
-    const position = center(this.compose_random_position(player));
+    const position = this.get_random_position(player);
     const serialized_coordinate = this.serialize_coordinate(position);
     this.#elements.set(serialized_coordinate, player);
     player.name = `player-${serialized_coordinate}`;
