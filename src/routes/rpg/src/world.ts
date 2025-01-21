@@ -6,14 +6,16 @@ import { Rock } from "./rock";
 import { Bush } from "./bush";
 import { Player } from "./player";
 import { center } from "./position";
+import { PathFinder } from "./path-finder";
 
 export class World extends THREE.Mesh {
   #map = new THREE.Group();
   #camera;
   #terrain;
   #elements = new Map<string, Element>();
-  #width;
-  #height;
+  width;
+  height;
+  #path_finder;
   constructor(
     width: number,
     height: number,
@@ -23,10 +25,11 @@ export class World extends THREE.Mesh {
     bush_count: number,
   ) {
     super();
-    this.#width = width;
-    this.#height = height;
+    this.width = width;
+    this.height = height;
     this.#camera = camera;
     this.#terrain = this.make_terrain();
+    this.#path_finder = new PathFinder(this);
     this.make_grid();
     this.make_trees(tree_count);
     this.make_rocks(rock_count);
@@ -38,22 +41,14 @@ export class World extends THREE.Mesh {
     return `${v.x},${v.z}`;
   }
   denormalize_position(v: THREE.Vector3) {
-    return new THREE.Vector3(
-      v.x + this.#width / 2,
-      v.y,
-      v.z + this.#height / 2,
-    );
+    return new THREE.Vector3(v.x + this.width / 2, v.y, v.z + this.height / 2);
   }
   normalize_position(v: THREE.Vector3): THREE.Vector3 {
-    return new THREE.Vector3(
-      v.x - this.#width / 2,
-      v.y,
-      v.z - this.#height / 2,
-    );
+    return new THREE.Vector3(v.x - this.width / 2, v.y, v.z - this.height / 2);
   }
   compose_random_position(element: Element): THREE.Vector3 {
-    const x = Math.floor(Math.random() * this.#width);
-    const z = Math.floor(Math.random() * this.#height);
+    const x = Math.floor(Math.random() * this.width);
+    const z = Math.floor(Math.random() * this.height);
     const next_position = new THREE.Vector3(x, element.position.y, z);
     const next_serialized_position = this.serialize_coordinate(next_position);
     if (this.#elements.has(next_serialized_position)) {
@@ -81,9 +76,9 @@ export class World extends THREE.Mesh {
     parent.remove(target);
     target.clear();
   }
-  get_elements() {
-    return this.#elements;
-  }
+  // get_elements() {
+  //   return this.#elements;
+  // }
   make_rocks(count: number) {
     const prev_rocks = this.#map.getObjectByName("rocks");
     if (prev_rocks) {
@@ -148,7 +143,12 @@ export class World extends THREE.Mesh {
     }
     const group = new THREE.Group();
     group.name = "players";
-    const player = new Player(this.#camera, this.#terrain, this);
+    const player = new Player(
+      this.#camera,
+      this.#terrain,
+      this,
+      this.#path_finder,
+    );
     const random_position = this.compose_random_position(player);
     const serialized_coordinate = this.serialize_coordinate(random_position);
     this.#elements.set(serialized_coordinate, player);
@@ -159,8 +159,8 @@ export class World extends THREE.Mesh {
     this.#map.add(group);
   }
   make_grid() {
-    const size = this.#width;
-    const divisions = this.#height;
+    const size = this.width;
+    const divisions = this.height;
     const grid_helper = new THREE.GridHelper(size, divisions);
     this.add(grid_helper);
   }
@@ -174,7 +174,7 @@ export class World extends THREE.Mesh {
     return this.#elements.get(serialized);
   }
   make_terrain() {
-    const terrain = new Terrain(this.#width, this.#height);
+    const terrain = new Terrain(this.width, this.height);
     this.add(terrain);
     return terrain;
   }
