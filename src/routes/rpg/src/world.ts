@@ -119,7 +119,6 @@ export class World extends THREE.Mesh {
       tree.name = `tree-${serialized_coordinate}`;
       const normalized_position = this.normalize_position(random_position);
       tree.position.copy(center(normalized_position));
-      console.log("adding a tree at", serialized_coordinate);
       group.add(tree);
     }
     this.#map.add(group);
