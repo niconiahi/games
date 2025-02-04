@@ -11,7 +11,7 @@ import { PathFinder } from "./path-finder";
 export class World extends THREE.Mesh {
   camera;
   terrain;
-  #elements = new Map<string, Element>();
+  elements = new Map<string, Element>();
   width;
   height;
   path_finder;
@@ -79,7 +79,7 @@ export class World extends THREE.Mesh {
     for (let i = 0; i < count; i++) {
       const rock = new Rock(this);
       const serialized_coordinate = this.serialize_coordinate(rock.position);
-      this.#elements.set(serialized_coordinate, rock);
+      this.elements.set(serialized_coordinate, rock);
       rock.name = `rock-${serialized_coordinate}`;
       group.add(rock);
     }
@@ -95,7 +95,7 @@ export class World extends THREE.Mesh {
     for (let i = 0; i < count; i++) {
       const tree = new Tree(this);
       const serialized_coordinate = this.serialize_coordinate(tree.position);
-      this.#elements.set(serialized_coordinate, tree);
+      this.elements.set(serialized_coordinate, tree);
       tree.name = `tree-${serialized_coordinate}`;
       group.add(tree);
     }
@@ -111,7 +111,7 @@ export class World extends THREE.Mesh {
     for (let i = 0; i < count; i++) {
       const bush = new Bush(this);
       const serialized_coordinate = this.serialize_coordinate(bush.position);
-      this.#elements.set(serialized_coordinate, bush);
+      this.elements.set(serialized_coordinate, bush);
       bush.name = `bush-${serialized_coordinate}`;
       group.add(bush);
     }
@@ -133,7 +133,7 @@ export class World extends THREE.Mesh {
     );
     player.position.copy(position);
     const serialized_coordinate = this.serialize_coordinate(position);
-    this.#elements.set(serialized_coordinate, player);
+    this.elements.set(serialized_coordinate, player);
     player.name = `player-${serialized_coordinate}`;
     group.add(player);
     this.terrain.map.add(group);
@@ -145,9 +145,8 @@ export class World extends THREE.Mesh {
     this.add(grid_helper);
   }
   get_element(position: THREE.Vector3) {
-    const _position = new THREE.Vector3(position.x, position.y, position.z);
-    const serialized = this.serialize_coordinate(_position);
-    return this.#elements.get(serialized);
+    const serialized = this.serialize_coordinate(position);
+    return this.elements.get(serialized);
   }
   make_terrain() {
     const terrain = new Terrain(this);

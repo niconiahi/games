@@ -9,11 +9,7 @@ const WALK_SPEED = 200;
 const HEIGHT = 0.2;
 
 export class Player extends Element {
-  #width;
-  #height;
-  #camera;
-  #terrain;
-  #path_finder;
+  #world;
   #interval_id = 0;
   constructor(world: World) {
     const geometry = new THREE.CapsuleGeometry(0.3, HEIGHT, 8);
@@ -22,30 +18,26 @@ export class Player extends Element {
       flatShading: true,
     });
     super(geometry, material);
+    this.#world = world;
     this.position.set(0, HEIGHT * 2, 0);
-    this.#width = world.width;
-    this.#height = world.height;
-    this.#camera = world.camera;
-    this.#terrain = world.terrain;
-    this.#path_finder = world.path_finder;
     window.addEventListener("mousedown", this.on_mouse_down.bind(this));
   }
   on_mouse_down(event: MouseEvent) {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(pointer, this.#camera);
-    const intersects = raycaster.intersectObject(this.#terrain.mesh);
+    raycaster.setFromCamera(pointer, this.#world.camera);
+    const intersects = raycaster.intersectObject(this.#world.terrain.mesh);
     if (intersects.length > 0) {
       const hit_point = new THREE.Vector3(
-        intersects[0].point.x + this.#width / 2,
+        intersects[0].point.x + this.#world.width / 2,
         0,
-        intersects[0].point.z + this.#height / 2,
+        intersects[0].point.z + this.#world.height / 2,
       );
       const start_position = this.position;
       const end_position = center(
         new THREE.Vector3(hit_point.x, this.position.y, hit_point.z),
       );
-      const path = this.#path_finder.search(start_position, end_position);
+      const path = this.#world.path_finder.search(start_position, end_position);
       this.stop();
       this.walk(path);
     }
