@@ -132,7 +132,6 @@ export class World extends THREE.Mesh {
       random_position.z,
     );
     player.position.copy(position);
-    console.log("creating a player at position", player.position);
     const serialized_coordinate = this.serialize_coordinate(position);
     this.#elements.set(serialized_coordinate, player);
     player.name = `player-${serialized_coordinate}`;

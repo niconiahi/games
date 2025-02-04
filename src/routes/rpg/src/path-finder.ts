@@ -52,7 +52,6 @@ export class PathFinder {
   get_free_positions(positions: THREE.Vector3[]): THREE.Vector3[] {
     return positions.filter((position) => {
       const element = this.#world.get_element(position);
-      console.log("element", element);
       if (element) {
         return false;
       }

@@ -1,7 +1,5 @@
 import * as THREE from "three";
 import { Element } from "./element.ts";
-import type { Terrain } from "./terrain.ts";
-import type { PathFinder } from "./path-finder.ts";
 import { center } from "./position.ts";
 import type { World } from "./world.ts";
 
@@ -16,6 +14,7 @@ export class Player extends Element {
   #camera;
   #terrain;
   #path_finder;
+  #interval_id = 0;
   constructor(world: World) {
     const geometry = new THREE.CapsuleGeometry(0.3, HEIGHT, 8);
     const material = new THREE.MeshStandardMaterial({
@@ -42,23 +41,27 @@ export class Player extends Element {
         0,
         intersects[0].point.z + this.#height / 2,
       );
-      console.log("hit_point", hit_point);
       const start_position = this.position;
       const end_position = center(
         new THREE.Vector3(hit_point.x, this.position.y, hit_point.z),
       );
       const path = this.#path_finder.search(start_position, end_position);
+      this.stop();
       this.walk(path);
     }
+  }
+  stop() {
+    clearInterval(this.#interval_id);
   }
   walk(path: THREE.Vector3[]) {
     if (path.length === 0) {
       return;
     }
     let index = 0;
-    const id = setInterval(() => {
+    this.#interval_id = setInterval(() => {
       if (index === path.length - 1) {
-        clearInterval(id);
+        this.stop();
+        return;
       }
       this.position.copy(path[index]);
       index++;

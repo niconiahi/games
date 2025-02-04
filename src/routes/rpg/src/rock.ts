@@ -27,6 +27,6 @@ export class Rock extends Element {
       random_position.z,
     );
     this.position.copy(position);
-    console.log("creating a bush at position", this.position);
+    // console.log("creating a bush at position", this.position);
   }
 }

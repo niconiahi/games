@@ -14,6 +14,6 @@ export class Tree extends Element {
     const random_position = world.get_random_position();
     const position = new THREE.Vector3(random_position.x, HEIGHT / 2, random_position.z);
     this.position.copy(position);
-    console.log("creating a tree at position", this.position);
+    // console.log("creating a tree at position", this.position);
   }
 }
