@@ -61,7 +61,6 @@ export class Player extends Element {
     this.#interval_id = setInterval(() => {
       if (index === path.length - 1) {
         this.stop();
-        return;
       }
       this.position.copy(path[index]);
       index++;
