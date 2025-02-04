@@ -27,8 +27,8 @@ camera.zoom = (globalThis.innerWidth * aspect_ratio) / 20;
 camera.updateProjectionMatrix();
 scene.add(camera);
 
-const camera_helper = new THREE.CameraHelper(camera);
-scene.add(camera_helper);
+// const camera_helper = new THREE.CameraHelper(camera);
+// scene.add(camera_helper);
 const canvas = document.querySelector("canvas");
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
