@@ -22,14 +22,13 @@ const camera = new THREE.OrthographicCamera(
   0.1,
   1000,
 );
-camera.position.set(4, 4, 4);
-camera.lookAt(new THREE.Vector3(0, 0, 0));
-camera.zoom = (globalThis.innerWidth * aspect_ratio) / 18;
+camera.position.set(8, 8, 8);
+camera.zoom = (globalThis.innerWidth * aspect_ratio) / 20;
 camera.updateProjectionMatrix();
 scene.add(camera);
 
-// const camera_helper = new THREE.CameraHelper(camera);
-// scene.add(camera_helper);
+const camera_helper = new THREE.CameraHelper(camera);
+scene.add(camera_helper);
 const canvas = document.querySelector("canvas");
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;

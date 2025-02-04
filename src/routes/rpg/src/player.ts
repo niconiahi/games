@@ -3,6 +3,7 @@ import { Element } from "./element.ts";
 import type { Terrain } from "./terrain.ts";
 import type { PathFinder } from "./path-finder.ts";
 import { center } from "./position.ts";
+import type { World } from "./world.ts";
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -10,10 +11,12 @@ const WALK_SPEED = 200;
 const HEIGHT = 0.2;
 
 export class Player extends Element {
+  #width;
+  #height;
   #camera;
   #terrain;
   #path_finder;
-  constructor(camera: THREE.Camera, terrain: Terrain, path_finder: PathFinder) {
+  constructor(world: World) {
     const geometry = new THREE.CapsuleGeometry(0.3, HEIGHT, 8);
     const material = new THREE.MeshStandardMaterial({
       color: "red",
@@ -21,18 +24,25 @@ export class Player extends Element {
     });
     super(geometry, material);
     this.position.set(0, HEIGHT * 2, 0);
-    this.#camera = camera;
-    this.#terrain = terrain;
-    this.#path_finder = path_finder;
+    this.#width = world.width;
+    this.#height = world.height;
+    this.#camera = world.camera;
+    this.#terrain = world.terrain;
+    this.#path_finder = world.path_finder;
     window.addEventListener("mousedown", this.on_mouse_down.bind(this));
   }
   on_mouse_down(event: MouseEvent) {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(pointer, this.#camera);
-    const intersects = raycaster.intersectObject(this.#terrain);
+    const intersects = raycaster.intersectObject(this.#terrain.mesh);
     if (intersects.length > 0) {
-      const hit_point = intersects[0].point;
+      const hit_point = new THREE.Vector3(
+        intersects[0].point.x + this.#width / 2,
+        0,
+        intersects[0].point.z + this.#height / 2,
+      );
+      console.log("hit_point", hit_point);
       const start_position = this.position;
       const end_position = center(
         new THREE.Vector3(hit_point.x, this.position.y, hit_point.z),

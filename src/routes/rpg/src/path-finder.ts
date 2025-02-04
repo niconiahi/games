@@ -8,12 +8,10 @@ export class PathFinder {
     this.#world = world;
   }
   search(start: THREE.Vector3, end: THREE.Vector3) {
-    const _end = this.#world.denormalize_position(end);
-    const _start = this.#world.denormalize_position(start);
-    if (_end.x === _start.x && _end.z === _start.z) {
+    if (end.x === start.x && end.z === start.z) {
       return [];
     }
-    if (this.#world.get_element(_end)) {
+    if (this.#world.get_element(end)) {
       return [];
     }
     const path: THREE.Vector3[] = [];
@@ -29,7 +27,7 @@ export class PathFinder {
       if (last_position) {
         next_candidate = last_position;
       } else {
-        next_candidate = _start;
+        next_candidate = start;
       }
       const neighboring_positions = this.get_neighboring_positions(next_candidate);
       const free_positions = this.get_free_positions(neighboring_positions);
@@ -37,25 +35,24 @@ export class PathFinder {
         neighboring_positions.some((neighbouring_position) => {
           return (
             this.#world.serialize_coordinate(neighbouring_position) ===
-            this.#world.serialize_coordinate(_end)
+            this.#world.serialize_coordinate(end)
           );
         })
       ) {
         found = true;
-        path.push(_end);
+        path.push(end);
         break;
       }
-      const closest_position = this.get_closest_position(free_positions, _end);
+      const closest_position = this.get_closest_position(free_positions, end);
       attemp++;
       path.push(closest_position);
     }
-    return path.map((position) => {
-      return this.#world.normalize_position(position);
-    });
+    return path;
   }
   get_free_positions(positions: THREE.Vector3[]): THREE.Vector3[] {
     return positions.filter((position) => {
       const element = this.#world.get_element(position);
+      console.log("element", element);
       if (element) {
         return false;
       }
